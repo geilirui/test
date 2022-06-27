@@ -6,7 +6,7 @@ import tensorflow as tf
 from keras.callbacks import (EarlyStopping, LearningRateScheduler,
                              ModelCheckpoint, TensorBoard)
 from keras.layers import Conv2D, Dense, DepthwiseConv2D
-from keras.optimizers import SGD, Adam
+from keras.optimizers import sgd_experimental, adam_v2
 from keras.regularizers import l2
 from keras.utils.multi_gpu_utils import multi_gpu_model
 
@@ -178,7 +178,7 @@ if __name__ == "__main__":
     #   Freeze_Train    是否进行冻结训练
     #                   默认先冻结主干训练后解冻训练。
     #------------------------------------------------------------------#
-    Freeze_Train        = False
+    Freeze_Train        = True
     
     #------------------------------------------------------------------#
     #   其它训练参数：学习率、优化器、学习率下降有关
@@ -199,7 +199,7 @@ if __name__ == "__main__":
     #   weight_decay    权值衰减，可防止过拟合
     #                   adam会导致weight_decay错误，使用adam时建议设置为0。
     #------------------------------------------------------------------#
-    optimizer_type      = "sgd"
+    optimizer_type      = "adam"
     momentum            = 0.937
     weight_decay        = 5e-4
     #------------------------------------------------------------------#
@@ -209,7 +209,7 @@ if __name__ == "__main__":
     #------------------------------------------------------------------#
     #   save_period     多少个epoch保存一次权值
     #------------------------------------------------------------------#
-    save_period         = 10
+    save_period         = 50
     #------------------------------------------------------------------#
     #   save_dir        权值与日志文件保存的文件夹
     #------------------------------------------------------------------#
@@ -340,8 +340,8 @@ if __name__ == "__main__":
         Min_lr_fit      = min(max(batch_size / nbs * Min_lr, lr_limit_min * 1e-2), lr_limit_max * 1e-2)
 
         optimizer = {
-            'adam'  : Adam(lr = Init_lr_fit, beta_1 = momentum),
-            'sgd'   : SGD(lr = Init_lr_fit, momentum = momentum, nesterov=True)
+            'adam'  : adam_v2.Adam(lr = Init_lr_fit, beta_1 = momentum),
+            'sgd'   : sgd_experimental.SGD(lr = Init_lr_fit, momentum = momentum, nesterov=True)
         }[optimizer_type]
         model.compile(optimizer = optimizer, loss={'yolo_loss': lambda y_true, y_pred: y_pred})
     
